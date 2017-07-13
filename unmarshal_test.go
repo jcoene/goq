@@ -56,6 +56,14 @@ const testPage = `<!DOCTYPE html>
 				<li name="fling">fling</li>
 			</ul>
 		</ul>
+		<div class="nested" data-value="4">
+			<img src="happy-one.png" />
+			text 1
+		</div>
+		<div class="nested" data-value="5">
+			<img src="happy-two.png" />
+			text 2
+		</div>
 		<div class="foobar">
 			<thing foo="yes">1</thing>
 			<foo arr="true">true</foo>
@@ -70,6 +78,7 @@ const testPage = `<!DOCTYPE html>
 
 type Page struct {
 	Resources []Resource `goquery:"#resources .resource"`
+	Nesteds   []*Nested  `goquery:".nested"`
 	FooBar    FooBar
 }
 
@@ -79,6 +88,12 @@ type Resource struct {
 
 type Attr struct {
 	Key, Value string
+}
+
+type Nested struct {
+	Value  int64  `goquery:"!,[data-value]"`
+	ImgSrc string `goquery:"img,[src]"`
+	Text   string `goquery:"!,text"`
 }
 
 type FooBar struct {
@@ -150,6 +165,12 @@ func TestUnmarshal(t *testing.T) {
 	asrt.Len(p.FooBar.Attrs, 1)
 	asrt.Equal("foo", p.FooBar.Attrs[0].Key)
 	asrt.Equal("yes", p.FooBar.Attrs[0].Value)
+	asrt.Equal(int64(4), p.Nesteds[0].Value)
+	asrt.Equal("happy-one.png", p.Nesteds[0].ImgSrc)
+	asrt.Equal("text 1", p.Nesteds[0].Text)
+	asrt.Equal(int64(5), p.Nesteds[1].Value)
+	asrt.Equal("happy-two.png", p.Nesteds[1].ImgSrc)
+	asrt.Equal("text 2", p.Nesteds[1].Text)
 }
 
 func TestArrayUnmarshal(t *testing.T) {

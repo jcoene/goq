@@ -51,6 +51,9 @@ func (tag goqueryTag) selector(which int) string {
 	if which > len(arr)-1 {
 		return ""
 	}
+	if arr[0] == "!" {
+		return ""
+	}
 	var offset int
 	for len(arr) > offset && arr[offset][0] == prePfx {
 		offset++
@@ -274,8 +277,9 @@ func unmarshalStruct(s *goquery.Selection, v reflect.Value) error {
 
 		sel := tag.preprocess(s)
 		if tag != "" {
-			selStr := tag.selector(0)
-			sel = sel.Find(selStr)
+			if selStr := tag.selector(0); selStr != "" {
+				sel = sel.Find(selStr)
+			}
 		}
 
 		err := unmarshalByType(sel, v.Field(i), tag)
